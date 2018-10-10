@@ -56,52 +56,53 @@ SB_GB pxlclk_gb (
 assign rstn = serclk_locked;
 
 reg [9:0] col_cnt;
-reg [8:0] row_cnt;
+reg [9:0] row_cnt;
 
 reg hsync, vsync, dena;
 
 initial begin
-    r = 8'b11111111;
-    g = 8'b00000000;
-    b = 8'b00000000;
+    r <= 8'b00000000;
+    g <= 8'b00000000;
+    b <= 8'b00000000;
 
-    col_cnt = 0;
-    row_cnt = 0;
+    col_cnt <= 0;
+    row_cnt <= 0;
 
-    hsync = 0;
-    vsync = 0;
-    dena  = 0;
+    hsync <= 0;
+    vsync <= 0;
+    dena  <= 0;
 end
 
 always @(posedge pxlclk) begin
     
     col_cnt <= col_cnt + 1;
-    if (col_cnt == 16) begin
+    if (col_cnt == 16-1) begin
     // hsync pulse
     hsync <= 1'b1;
-    end else if (col_cnt == 112) begin
+    end else if (col_cnt == 112-1) begin
         // back porch
         hsync <= 1'b0;
-    end else if (col_cnt == 160) begin
+    end else if (col_cnt == 160-1) begin
         dena <= 1'b1;
-    end else if (col_cnt == 800) begin
+    end else if (col_cnt == 800-1) begin
         dena <= 1'b0;
         col_cnt <= 0;
         row_cnt <= row_cnt + 1;
     end
 
-    if (row_cnt >= 480) begin
+    if (row_cnt > 480-1) begin
         dena <= 1'b0;
-        if (row_cnt == 490) begin
+        if (row_cnt == 490-1) begin
             vsync <= 1'b1;
-        end else if (row_cnt == 492) begin
+        end else if (row_cnt == 492-1) begin
             vsync <= 1'b0;
-        end else if (row_cnt == 525) begin
+        end else if (row_cnt == 525-1) begin
             row_cnt <= 0;
         end
     end
 
 end
+
 
 dvi tmds (
     .serclk (serclk),
@@ -122,5 +123,35 @@ assign led_1 = 0;
 assign led_2 = 0;
 assign led_3 = 0;
 assign led_4 = rstn;
+
+
+
+wire [7:0] char_line;
+
+character_generator cg_0 (
+    .pxlclk (pxlclk),
+	.ascii  (col_cnt[9:3]),
+	.row    (row_cnt[2:0]),
+	.dout   (char_line)
+);
+
+reg [2:0] char_col;
+reg pxl;
+always @(posedge pxlclk) begin
+	pxl <= char_line[char_col];
+	char_col <= char_col + 1;
+	if (pxl) begin
+		r <= 8'hFF;
+		g <= 8'hFF;
+		b <= 8'hFF;
+	end else begin
+		r <= 8'h00;
+		g <= 8'h00;
+		b <= 8'h00;
+	end
+end
+
+
+
 
 endmodule

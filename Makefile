@@ -1,6 +1,6 @@
 all:
 	mkdir -p build
-	yosys  -q -p "synth_ice40 -top top -blif build/top.blif" top.v dvi.v tmds_encoder/tmds_encoder.v tmds_serializer/tmds_serializer.v clk_divider/clk_divider.v
+	yosys  -q -p "synth_ice40 -top top -blif build/top.blif" top.v dvi.v tmds_encoder/tmds_encoder.v tmds_serializer/tmds_serializer.v clk_divider/clk_divider.v character_generator/character_generator.v
 	arachne-pnr -d 1k -o build/top.asc -p top.pcf build/top.blif
 	icepack build/top.asc build/top.bin
 	icetime -d hx1k -mt build/top.asc
