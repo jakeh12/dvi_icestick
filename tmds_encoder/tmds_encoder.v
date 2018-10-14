@@ -1,3 +1,15 @@
+// -----------------------------------------------------------------------------
+// vim:set shiftwidth=2 softtabstop=2 expandtab colorcolumn=80: 
+//
+// Module: tmds_encoder.v
+// Project: OpenFPGA
+// Description: Transition-minimized differential signaling (TMDS) protocol
+//              encoder for Digital Visual Interface (DVI)
+//
+//
+// Change history: 18/10/13 - Early implementation finished.
+//
+// -----------------------------------------------------------------------------
 module tmds_encoder (
   input            i_clk,
   input            i_rstn,
@@ -7,9 +19,9 @@ module tmds_encoder (
   output reg [9:0] o_data
 );
   
-  // --------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
   // REGISTER ALL INPUTS
-  // --------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
   reg r_de;
   reg r_ctrl;
   reg r_data;
@@ -26,9 +38,9 @@ module tmds_encoder (
     end
   end
   
-  // --------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
   // MINIMIZE TRANSITIONS
-  // --------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
   // prepare xor and xnor encoded data
   wire [7:0] w_data_xor;
   
@@ -75,20 +87,21 @@ module tmds_encoder (
       r_encoded     = {1'b0,  w_data_xnor};
       r_encoded_inv = {1'b0, ~w_data_xnor};
     end else begin
-      r_encoded     = {1'b1,  w_data_xor};
-      r_encoded_inv = {1'b1, ~w_data_xor};
+      // otherwise use xor encoding
+      r_encoded     = {1'b1,  w_data_xor };
+      r_encoded_inv = {1'b1, ~w_data_xor };
     end
   end
   
-  // --------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
   // MAINTAIN DC BALANCE
-  // --------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
   // calculate encoded symbol disparity
   // disparity = #1s - #0s
   // there are always 8 bits in a symbol => #0s = 8 - #1s
   // 
   // disparity = #1s - (8 - #1s) 
-  //          = 2*#1s - 8 
+  //           = 2*#1s - 8 
   //
   // we can downscale the disparity by 2 otherwise the bit 0 
   // would be never used because the result is always even
