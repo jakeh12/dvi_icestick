@@ -1,152 +1,70 @@
+// -----------------------------------------------------------------------------
+// vim:set shiftwidth=2 softtabstop=2 expandtab colorcolumn=80: 
+//
+// Module: dvi.v
+// Project: OpenFPGA
+// Description: Digital RGB to Digital Visual Interface (DVI) implementation
+//
+// Author: Jakub Hladik
+//
+// Change history: 18/10/13 - Early implementation finished.
+//
+// -----------------------------------------------------------------------------
 module dvi (
-    input serclk,
-    input pxlclk,
-    input rstn,
-    input [7:0] r,
-    input [7:0] g,
-    input [7:0] b,
-    input hsync,
-    input vsync,
-    input dena,
-    output [3:0] tmds_p,
-    output [3:0] tmds_n
+    input         i_serclk,
+    input         i_pxlclk,
+    input         i_rstn,
+    input         i_hs,
+    input         i_vs,
+    input         i_de,
+    input  [23:0] i_bgr,
+    output [ 2:0] o_ser_re,
+    output [ 2:0] o_ser_fe
 );
-
-/*********************
-
- TMDS DATA ENCODERS 
-
-*********************/
-
-// tmds encode pixel and control data
-wire [9:0] tmds_data [2:0];
-
-tmds_encoder encoder_0 (
-    .clk (pxlclk),
-    .rstn (rstn),
-    .dena (dena),
-    .ctrl ({vsync, hsync}),
-    .din (b),
-    .dout (tmds_data[0])
-);
-
-tmds_encoder encoder_1 (
-    .clk (pxlclk),
-    .rstn (rstn),
-    .dena (dena),
-    .ctrl (2'b00),
-    .din (g),
-    .dout (tmds_data[1])
-);
-
-tmds_encoder encoder_2 (
-    .clk (pxlclk),
-    .rstn (rstn),
-    .dena (dena),
-    .ctrl (2'b00),
-    .din (r),
-    .dout (tmds_data[2])
-);
-
-
-/*********************
-
- 10:1 DDR SERIALIZERS 
-
-*********************/
-
-wire [2:0] tmds_rising, tmds_falling;
-wire tmds_clk;
-
-tmds_serializer serializer_0 (
-	.pxlclk  (pxlclk),
-	.serclk  (serclk),
-	.r       (tmds_data[2]),
-	.g       (tmds_data[1]),
-	.b       (tmds_data[0]),
-	.rising  (tmds_rising),
-	.falling (tmds_falling),
-	.clk     (tmds_clk)
-);
-
-
-/*************************
-
- DIFFERENTIAL DDR OUTPUTS
-
-*************************/
-
-// tmds channel 0 (blue + syncs) differential pair
-SB_IO tmds_0_p (
-    .PACKAGE_PIN (tmds_p[0]),
-    //.CLOCK_ENABLE (1'b1), // TODO: remove later, only for simulation
-    .OUTPUT_CLK (serclk),
-    .D_OUT_0 (tmds_falling[0]),
-    .D_OUT_1 (tmds_rising[0])
-);
-defparam tmds_0_p.PIN_TYPE = 6'b010010;
-
-SB_IO tmds_0_n (
-    .PACKAGE_PIN (tmds_n[0]),
-    //.CLOCK_ENABLE (1'b1), // TODO: remove later, only for simulation
-    .OUTPUT_CLK (serclk),
-    .D_OUT_0 (~tmds_falling[0]),
-    .D_OUT_1 (~tmds_rising[0])
-);
-defparam tmds_0_n.PIN_TYPE = 6'b010010;
-
-// tmds channel 1 (green) differential pair
-SB_IO tmds_1_p (
-    .PACKAGE_PIN (tmds_p[1]),
-    //.CLOCK_ENABLE (1'b1), // TODO: remove later, only for simulation
-    .OUTPUT_CLK (serclk),
-    .D_OUT_0 (tmds_falling[1]),
-    .D_OUT_1 (tmds_rising[1])
-);
-defparam tmds_1_p.PIN_TYPE = 6'b010010;
-
-SB_IO tmds_1_n (
-    .PACKAGE_PIN (tmds_n[1]),
-    //.CLOCK_ENABLE (1'b1), // TODO: remove later, only for simulation
-    .OUTPUT_CLK (serclk),
-    .D_OUT_0 (~tmds_falling[1]),
-    .D_OUT_1 (~tmds_rising[1])
-);
-defparam tmds_1_n.PIN_TYPE = 6'b010010;
-
-// tmds channel 2 (red) differential pair
-SB_IO tmds_2_p (
-    .PACKAGE_PIN (tmds_p[2]),
-    //.CLOCK_ENABLE (1'b1), // TODO: remove later, only for simulation
-    .OUTPUT_CLK (serclk),
-    .D_OUT_0 (tmds_falling[2]),
-    .D_OUT_1 (tmds_rising[2])
-);
-defparam tmds_2_p.PIN_TYPE = 6'b010010;
-
-SB_IO tmds_2_n (
-    .PACKAGE_PIN (tmds_n[2]),
-    //.CLOCK_ENABLE (1'b1), // TODO: remove later, only for simulation
-    .OUTPUT_CLK (serclk),
-    .D_OUT_0 (~tmds_falling[2]),
-    .D_OUT_1 (~tmds_rising[2])
-);
-defparam tmds_2_n.PIN_TYPE = 6'b010010;
-
-// tmds clk differential pair
-SB_IO tmds_clk_p (
-    .PACKAGE_PIN (tmds_p[3]),
-    //.CLOCK_ENABLE (1'b1), // TODO: remove later, only for simulation
-    .D_OUT_0 (tmds_clk)
-);
-defparam tmds_clk_p.PIN_TYPE = 6'b011010;
-
-SB_IO tmds_clk_n (
-    .PACKAGE_PIN (tmds_n[3]),
-    //.CLOCK_ENABLE (1'b1), // TODO: remove later, only for simulation
-    .D_OUT_0 (~tmds_clk)
-);
-defparam tmds_clk_n.PIN_TYPE = 6'b011010;
-
-
+  
+  // tmds encoders
+  wire [9:0] w_encoded_b;
+  wire [9:0] w_encoded_g;
+  wire [9:0] w_encoded_r;
+  
+  tmds_encoder encoder_b (
+    .i_clk  (i_pxlclk),
+    .i_rstn (i_rstn),
+    .i_de   (i_de),
+    .i_ctrl ({i_vs, i_hs}),
+    .i_data (i_bgr[23:16]),
+    .o_data (w_encoded_b)
+  );
+  
+  tmds_encoder encoder_g (
+    .i_clk  (i_pxlclk),
+    .i_rstn (i_rstn),
+    .i_de   (i_de),
+    .i_ctrl (2'b00),
+    .i_data (i_bgr[15:8]),
+    .o_data (w_encoded_g)
+  );
+  
+  tmds_encoder encoder_r (
+    .i_clk  (i_pxlclk),
+    .i_rstn (i_rstn),
+    .i_de   (i_de),
+    .i_ctrl (2'b00),
+    .i_data (i_bgr[7:0]),
+    .o_data (w_encoded_r)
+  );
+  
+  
+  // tmds serializer
+  tmds_serializer tmds_serializer_0 (
+    .i_pxlclk (i_pxlclk),
+    .i_serclk (i_serclk),
+    .i_rstn   (i_rstn),
+    .i_enc_b  (w_encoded_b),
+    .i_enc_g  (w_encoded_g),
+    .i_enc_r  (w_encoded_r),
+    .o_ser_re (o_ser_re),
+    .o_ser_fe (o_ser_fe)
+  );
+  
 endmodule

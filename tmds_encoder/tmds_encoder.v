@@ -6,6 +6,7 @@
 // Description: Transition-minimized differential signaling (TMDS) protocol
 //              encoder for Digital Visual Interface (DVI)
 //
+// Author: Jakub Hladik
 //
 // Change history: 18/10/13 - Early implementation finished.
 //
@@ -22,9 +23,9 @@ module tmds_encoder (
   // ---------------------------------------------------------------------------
   // REGISTER ALL INPUTS
   // ---------------------------------------------------------------------------
-  reg r_de;
-  reg r_ctrl;
-  reg r_data;
+  reg       r_de;
+  reg [1:0] r_ctrl;
+  reg [7:0] r_data;
   
   always @(posedge i_clk, negedge i_rstn) begin
     if (!i_rstn) begin  // asynchronous reset
@@ -127,7 +128,7 @@ module tmds_encoder (
   always @(posedge i_clk, negedge i_rstn) begin
     if (!i_rstn) begin // asynchronous reset
       r_running_disparity <= 0;
-    end else if (!r_dena) begin
+    end else if (!r_de) begin
       // output control data during blanking period
       case (r_ctrl)
         2'b00: o_data <= 10'b1101010100;
