@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 // vim:set shiftwidth=2 softtabstop=2 expandtab colorcolumn=80: 
 //
-// Module: dvi.v
+// Module: tmds_vo.v
 // Project: OpenFPGA
 // Description: Digital RGB to Digital Visual Interface (DVI) implementation
 //
@@ -10,7 +10,7 @@
 // Change history: 18/10/13 - Early implementation finished.
 //
 // -----------------------------------------------------------------------------
-module dvi (
+module tmds_vo (
     input         i_serclk,
     input         i_pxlclk,
     input         i_rstn,

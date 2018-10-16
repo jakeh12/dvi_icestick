@@ -5,6 +5,33 @@ module character_generator (
 	output reg [7:0] dout
 );
 
+  //
+  // wire [7:0] char_line;
+  //
+  // character_generator cg_0 (
+  //   .pxlclk (w_pxlclk),
+  //   .ascii  (r_col_cnt[9:3]),
+  //   .row    (r_row_cnt[2:0]),
+  //   .dout   (char_line)
+  // );
+  //
+  // reg [7:0] char_line_reg;
+  // reg [2:0] char_col;
+  // reg r_pxl;
+  //
+  // always @(posedge w_pxlclk) begin
+  //   if (r_col_cnt[2:0] == 7) begin
+  //     char_line_reg <= char_line;
+  //   end
+  //   r_pxl <= char_line_reg[char_col];
+  //   char_col <= char_col + 1;
+  //   if (r_pxl) begin
+  //     r_bgr <= 24'hFFFFFF;
+  //   end else begin
+  //     r_bgr <= 24'h000000;
+  //   end
+  // end
+
 reg [7:0] char_rom [0:1023];
 
 initial begin
