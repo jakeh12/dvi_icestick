@@ -56,18 +56,18 @@ module top (
   wire w_de, w_hs, w_vs;
   wire [9:0] w_x;
   wire [9:0] w_y;
-  
+
   timing_generator #(
-    .ACTIVE_WIDTH_PIX           (640),
-    .ACTIVE_HEIGHT_PIX          (480),
-    .HORIZONTAL_FRONT_PORCH_PIX ( 16),
-    .HORIZONTAL_SYNC_PULSE_PIX  ( 96),
-    .HORIZONTAL_BACK_PORCH_PIX  ( 48),
-    .VERTICAL_FRONT_PORCH_LINES ( 10),
-    .VERTICAL_SYNC_PULSE_LINES  (  2),
-    .VERTICAL_BACK_PORTCH_LINES ( 33)
-	)
-	tg_0 (
+    .HAC (640), // horizontal active area pixels
+    .HFP ( 16), // horizontal front porch pixels
+    .HSP ( 96), // horizontal sync pulse pixels
+    .HBP ( 48), // horizontal back porch pixels
+    .VAC (480), // vertical active area lines
+    .VFP ( 10), // vertical front porch lines
+    .VSP (  2), // vertical sync pulse lines
+    .VBP ( 33)  // vertical back porch lines
+  )
+  tg_0 (
     .i_clk  (w_pxlclk),
     .i_rstn (w_rstn),
     .o_de   (w_de),
@@ -76,25 +76,25 @@ module top (
     .o_x    (w_x),
     .o_y    (w_y)
   );
+
+
 	
-	wire w_ig_de, w_ig_hs, w_ig_vs;
-	wire [23:0] w_ig_bgr;
-	
-	image_generator ig_0 (
-	  .i_clk  (w_pxlclk),
-	  .i_rstn (w_rstn),
-	  .i_de   (w_de),
-	  .i_hs   (w_hs),
-	  .i_vs   (w_vs),
-	  .i_x    (w_x),
-	  .i_y    (w_y),
-	  .o_de   (w_ig_de),
-	  .o_hs   (w_ig_hs),
-	  .o_vs   (w_ig_vs),
-	  .o_bgr  (w_ig_bgr),
-	);
-	
-	
+  wire w_ig_de, w_ig_hs, w_ig_vs;
+  wire [23:0] w_ig_bgr;
+  
+  image_generator ig_0 (
+    .i_clk  (w_pxlclk),
+    .i_rstn (w_rstn),
+    .i_de   (w_de),
+    .i_hs   (w_hs),
+    .i_vs   (w_vs),
+    .i_x    (w_x),
+    .i_y    (w_y),
+    .o_de   (w_ig_de),
+    .o_hs   (w_ig_hs),
+    .o_vs   (w_ig_vs),
+    .o_bgr  (w_ig_bgr),
+  );
    
   wire [2:0] w_ser_re, w_ser_fe;
   
