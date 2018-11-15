@@ -23,9 +23,9 @@ module image_generator (
       o_hs  <= i_hs;
       o_vs  <= i_vs;
       if (i_x == 0 || i_x == 639 || i_y == 0 || i_y == 479) begin
-        o_bgr <= 24'h0000FF;
-      end else begin
         o_bgr <= 24'hFFFFFF;
+      end else begin
+        o_bgr <= 24'h000000;
       end
     end
   end
