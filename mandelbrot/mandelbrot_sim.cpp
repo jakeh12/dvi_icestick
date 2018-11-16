@@ -53,10 +53,10 @@ int main(int argc, char **argv)
 	    }
 	  
 	        // set inputs
-		m->i_x = 1211;
-		m->i_y = 33979;
-		m->i_cx = 323;
-		m->i_cy = 139;
+		m->i_x = 10432;
+		m->i_y = 6672;
+		m->i_cx = 2313;
+		m->i_cy = -232;
 		m->i_cnt = 0;
 		// posedge clock
 		m->i_clk = 1;
@@ -68,6 +68,12 @@ int main(int argc, char **argv)
 		printf("\n");
 		printf("i_y:\t");
 		print_fp(m->i_y);
+		printf("\n");
+		printf("i_cx:\t");
+		print_fp(m->i_cx);
+		printf("\n");
+		printf("i_cy:\t");
+		print_fp(m->i_cy);
 		printf("\n");
 		printf("o_x:\t");
 		print_fp(m->o_x);

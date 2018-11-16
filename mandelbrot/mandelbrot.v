@@ -14,16 +14,18 @@ module mandelbrot (
 );
    
    // stage 0
-   reg signed [15:0] r_xx_0;
-   reg signed [15:0] r_yy_0;
-   reg signed [15:0] r_xy_0;
+   /* verilator lint_off UNUSED */
+   reg signed [31:0] r_xx_0;
+   reg signed [31:0] r_yy_0;
+   reg signed [31:0] r_xy_0;
+   /* verilator lint_off UNUSED */
    reg signed [15:0] r_cx_0;
    reg signed [15:0] r_cy_0;
    reg        [7:0]  r_cnt_0;
    
 
    // stage 1
-   reg signed [15:0] r_yy_m_xx_1;
+   reg signed [15:0] r_xx_m_yy_1;
    reg signed [15:0] r_2xy_1;
    reg signed [15:0] r_xx_p_yy_1;
    reg signed [15:0] r_cx_1;
@@ -32,7 +34,7 @@ module mandelbrot (
    
    
    // stage 2
-   reg signed [15:0] r_yy_m_xx_p_cx_2;
+   reg signed [15:0] r_xx_m_yy_p_cx_2;
    reg signed [15:0] r_2xy_p_cy_2;
    reg signed [15:0] r_cx_2;
    reg signed [15:0] r_cy_2;
@@ -47,13 +49,13 @@ module mandelbrot (
 	 r_cx_0           <= 0;
 	 r_cy_0           <= 0;
 	 r_cnt_0          <= 0;
-	 r_yy_m_xx_1      <= 0;
+	 r_xx_m_yy_1      <= 0;
 	 r_2xy_1          <= 0;
 	 r_xx_p_yy_1      <= 0;
 	 r_cx_1           <= 0;
 	 r_cy_1           <= 0;
 	 r_cnt_1          <= 0;
-	 r_yy_m_xx_p_cx_2 <= 0;
+	 r_xx_m_yy_p_cx_2 <= 0;
 	 r_2xy_p_cy_2     <= 0;
 	 r_cnt_2          <= 0;
       end else begin
@@ -66,15 +68,15 @@ module mandelbrot (
 	 r_cnt_0 <= i_cnt;
 	 
 	 // stage 1
-	 r_yy_m_xx_1 <= r_yy_0 - r_xx_0;
-	 r_2xy_1     <= r_xy_0 << 2;
-	 r_xx_p_yy_1 <= r_xx_0 + r_yy_0;
+	 r_xx_m_yy_1 <= r_xx_0[27:12] - r_yy_0[27:12];
+	 r_2xy_1     <= r_xy_0[27:12] << 1;
+	 r_xx_p_yy_1 <= r_xx_0[27:12] + r_yy_0[27:12];
 	 r_cx_1      <= r_cx_0;
 	 r_cy_1      <= r_cy_0;
 	 r_cnt_1     <= r_cnt_0;
 	 
 	 // stage 2
-	 r_yy_m_xx_p_cx_2 <= r_yy_m_xx_1 + r_cx_1;
+	 r_xx_m_yy_p_cx_2 <= r_xx_m_yy_1 + r_cx_1;
          r_2xy_p_cy_2     <= r_2xy_1 + r_cy_1;
 	 r_cx_2           <= r_cx_1;
 	 r_cy_2           <= r_cy_1;
@@ -86,7 +88,7 @@ module mandelbrot (
       end
    end // always @ (posedge i_clk, negedge i_rstn)
 
-   assign o_x   = r_yy_m_xx_p_cx_2;
+   assign o_x   = r_xx_m_yy_p_cx_2;
    assign o_y   = r_2xy_p_cy_2;
    assign o_cnt = r_cnt_2;
    assign o_cx  = r_cx_2;
