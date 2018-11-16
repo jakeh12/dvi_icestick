@@ -66,7 +66,11 @@ module mandelbrot (
 	 r_cx_0  <= i_cx;
 	 r_cy_0  <= i_cy;
 	 r_cnt_0 <= i_cnt;
-	 
+	 // check for overflow
+	 // ovrf <= r_xx_0[31:28] == 4'b0000 ? 0 : 1;
+	 // ovrf <= r_yy_0[31:28] == 4'b0000 ? 0 : 1;
+	 // ovrf <= r_xy_0[31:28] == 4'b0000 ? 0 : 1;
+	 	 
 	 // stage 1
 	 r_xx_m_yy_1 <= r_xx_0[27:12] - r_yy_0[27:12];
 	 r_2xy_1     <= r_xy_0[27:12] << 1;
@@ -74,7 +78,8 @@ module mandelbrot (
 	 r_cx_1      <= r_cx_0;
 	 r_cy_1      <= r_cy_0;
 	 r_cnt_1     <= r_cnt_0;
-	 
+	 //TODO: check for overflow after each multiplication
+	  
 	 // stage 2
 	 r_xx_m_yy_p_cx_2 <= r_xx_m_yy_1 + r_cx_1;
          r_2xy_p_cy_2     <= r_2xy_1 + r_cy_1;

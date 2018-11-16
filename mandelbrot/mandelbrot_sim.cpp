@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 	    }
 	  
 	        // set inputs
-		m->i_x = 10432;
+		m->i_x = 16384;
 		m->i_y = 6672;
 		m->i_cx = 2313;
 		m->i_cy = -232;
